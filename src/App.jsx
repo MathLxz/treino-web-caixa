@@ -5,17 +5,10 @@ import Button from './componentes/button';
 import Table from './componentes/table';
 
 function App() {
-  const [saldo, setSaldo] = useState(1000);
+  // const [saldo, setSaldo] = useState(1000);
   const [valor, setValor] = useState();
-  // const [valorDeposito, setValorDeposito] = useState();
   const [tipoOperacao, setTipoOperacao] = useState();
   const [historicoOperacao, setHistoricoOperacao] = useState([]);
-
-  // remover
-  // const [dataAtual, setDataAtual] = useState(new Date().toLocaleString());
-  // const [mostraSaldo, setMostraSaldo] = useState();
-  // const [mostraSaldoDiv, setMostraSaldoDiv] = useState(false);
-  // const [mostraHistorico, setMostraHistorico] = useState(false);
 
   const TiposOperacao = [
     { label: 'Saque', value: 'Sacar' },
@@ -29,101 +22,66 @@ function App() {
       {
         tipo: 'Saldo inicial',
         valor: 1000,
-        saldo: saldo,
-        data: new Date().toLocaleString(), // OK
+        saldo: 1000,
+        data: new Date().toLocaleString(),
       },
     ]);
   }, []);
 
-  // function sacar() {
-  //   if (saldo >= valorSaque) {
-  //     const novoSaldo = saldo - valorSaque;
-  //     setSaldo(novoSaldo);
+  function calcularSaldo() {
+    let saldoAtual = 1000;
 
-  //     setHistoricoOperacao([
-  //       ...historicoOperacao,
-  //       {
-  //         tipo: 'Saque',
-  //         valor: valorSaque,
-  //         saldo: novoSaldo,
-  //         data: new Date().toLocaleString(), // ok
-  //       },
-  //     ]);
-  //     setTipoOperacao('');
-  //   } else {
-  //     alert('Saldo insuficiente');
-  //   }
-  // }
+    historicoOperacao.forEach((op) => {
+      if (op.tipo === 'Saque') {
+        saldoAtual -= op.valor;
+      } else if (op.tipo === 'Deposito') {
+        saldoAtual += op.valor;
+      }
+    });
 
-  // function depositar() {
-  //   const novoSaldo = saldo + Number(valorDeposito);
-  //   setSaldo(novoSaldo);
+    return saldoAtual;
 
-  //   setHistoricoOperacao([
-  //     ...historicoOperacao,
-  //     {
-  //       tipo: 'Depósito',
-  //       valor: valorDeposito,
-  //       saldo: novoSaldo,
-  //       data: new Date().toLocaleString(), // OK
-  //     },
-  //   ]);
-
-  //   setTipoOperacao('');
-  // }
+  }
 
   function movimentar() {
-    // Operação SACAR
-    if (tipoOperacao == 'Sacar') {
-      // FUNC SACAR
-      if (saldo >= valor) {
-        const novoSaldo = saldo - valor;
-        setSaldo(novoSaldo);
+    const saldoAtual = calcularSaldo();
+
+    if (tipoOperacao === 'Sacar') {
+      if (saldoAtual >= valor) {
+        const novoSaldo = saldoAtual - valor;
 
         setHistoricoOperacao([
           ...historicoOperacao,
           {
             tipo: 'Saque',
-            valor: valor,
+            valor: Number(valor),
             saldo: novoSaldo,
-            data: new Date().toLocaleString(), // ok
+            data: new Date().toLocaleString(),
           },
         ]);
         setTipoOperacao('');
       } else {
-        alert('Saldo insuficiente');
+        alert('Saldo Insuficiente');
       }
     }
-    // Operação DEPO
-    if (tipoOperacao == 'Deposito') {
-      const novoSaldo = saldo + Number(valor);
-      setSaldo(novoSaldo);
+    
+    if (tipoOperacao === 'Deposito') {
+      const novoSaldo = saldoAtual + Number(valor);
 
       setHistoricoOperacao([
         ...historicoOperacao,
         {
-          tipo: 'Depósito',
-          valor: valor,
+          tipo: 'Deposito',
+          valor: Number(valor),
           saldo: novoSaldo,
-          data: new Date().toLocaleString(), // OK
+          data: new Date().toLocaleString(),
         },
       ]);
-
       setTipoOperacao('');
     }
+    
   }
-
-  //remover
-  // function consutarSaldo() {
-  //   setMostraSaldo(saldo);
-  //   setMostraSaldoDiv(true);
-
-  // }
-  // function consultarHistorico() {
-  //   setMostraHistorico(true);
-
-  // }
-
+ 
   return (
     <>
       <div>
@@ -131,7 +89,7 @@ function App() {
           <div className="col-2">
             <h1>Caixa Eletrônico</h1>
 
-            {<h3>Saldo: {saldo}</h3>}
+            <h3>Saldo: {calcularSaldo()}</h3>
 
             <Select
               Nome="Selecione uma Operação"
@@ -140,49 +98,47 @@ function App() {
               value={tipoOperacao}
               onChange={(e) => setTipoOperacao(e.target.value)}
             />
-            {/* Isso está fazendo os inputs aparecerem ao consultar saldo e histórico */}
-            {tipoOperacao && (
+
+            {(tipoOperacao === 'Sacar' || tipoOperacao === 'Deposito') && (
               <>
                 <Input
-                  Nome={`Digite o valor de Saque`}
+                  Nome={`Digite o valor de ${tipoOperacao === 'Sacar' ? 'Saque' : 'Deposito'}`}
                   onChange={(e) => setValor(e.target.value)}
                 />
                 <Button Nome={tipoOperacao} onClick={movimentar}></Button>
               </>
             )}
 
-            {tipoOperacao == 'Consultar' && ( //OK
+            {tipoOperacao === 'Consultar' && ( //OK
               <div>
-                <h3>Slado atual: {saldo}</h3>
+                <h3>Saldo atual: {calcularSaldo()}</h3>
               </div>
             )}
           </div>
 
-          {tipoOperacao == 'Historico' && ( // OK
-            <div className="col-4">
-              <Table>
-                <thead>
-                  <tr>
-                    <th>SALDO</th>
-                    <th>OPERAÇÃO</th>
-                    <th>VALOR</th>
-                    <th>DATA</th>
-                  </tr>
-                </thead>
+          <div className="col-4">
+            <Table>
+              <thead>
+                <tr>
+                  <th>SALDO</th>
+                  <th>OPERAÇÃO</th>
+                  <th>VALOR</th>
+                  <th>DATA</th>
+                </tr>
+              </thead>
 
-                <tbody>
-                  {historicoOperacao.map((operacao, index) => (
-                    <tr key={index}>
-                      <td>{operacao.saldo}</td>
-                      <td>{operacao.tipo}</td>
-                      <td>{operacao.valor}</td>
-                      <td>{operacao.data}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          )}
+              <tbody>
+                {historicoOperacao.map((operacao, index) => (
+                  <tr key={index}>
+                    <td>{operacao.saldo}</td>
+                    <td>{operacao.tipo}</td>
+                    <td>{operacao.valor}</td>
+                    <td>{operacao.data}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
         </div>
       </div>
     </>
