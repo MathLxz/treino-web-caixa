@@ -13,8 +13,6 @@ function App() {
   const TiposOperacao = [
     { label: 'Saque', value: 'Sacar' },
     { label: 'Depósito', value: 'Deposito' },
-    { label: 'Consultar Saldo', value: 'Consultar' },
-    { label: 'Consultar Histórico', value: 'Historico' },
   ];
 
   useEffect(() => {
@@ -29,12 +27,12 @@ function App() {
   }, []);
 
   function calcularSaldo() {
-    let saldoAtual = 1000;
+    let saldoAtual = 0;
 
     historicoOperacao.forEach((op) => {
       if (op.tipo === 'Saque') {
         saldoAtual -= op.valor;
-      } else if (op.tipo === 'Deposito') {
+      } else if (op.tipo === 'Deposito' || op.tipo === 'Saldo inicial') {
         saldoAtual += op.valor;
       }
     });
@@ -45,7 +43,10 @@ function App() {
 
   function movimentar() {
     const saldoAtual = calcularSaldo();
-
+    if (valor <= 0 ) {
+      alert('O valor deve ser maior que 0');
+      return;
+    }
     if (tipoOperacao === 'Sacar') {
       if (saldoAtual >= valor) {
         const novoSaldo = saldoAtual - valor;
@@ -109,7 +110,7 @@ function App() {
               </>
             )}
 
-            {tipoOperacao === 'Consultar' && ( //OK
+            {tipoOperacao === 'Consultar' && (
               <div>
                 <h3>Saldo atual: {calcularSaldo()}</h3>
               </div>
